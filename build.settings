@@ -1,0 +1,25 @@
+settings = 
+{
+	iphone =
+	{
+		plist =
+		{
+	        CFBundleIconFile = "data/Icon.png",
+	        CFBundleIconFiles = {
+	           "data/Icon.png", 
+	           "data/Icon@2x.png", 
+	           "data/Icon-72.png", 
+	        },
+		},
+	},
+	orientation =
+	        {
+	                default ="landscapeRight",
+	                content = "landscape",
+	                supported =
+	                {
+	                        "landscapeRight",
+							"landscapeLeft",
+	                },
+	}
+}
