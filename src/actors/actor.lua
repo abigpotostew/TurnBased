@@ -35,6 +35,7 @@ Actor:makeInit(function(class, self, gridX, gridY)
 	
 	self.movementFunc = nil --Sets destX, destY. Should do all checks whether an actor can move or not
 	
+    local actorType={}
 	if actorType then
 		self.typeInfo = actorType
 	else

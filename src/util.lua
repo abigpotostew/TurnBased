@@ -164,4 +164,20 @@ function Util.sign(a)
 	end
 end
 
+-- override print() function to improve performance when running on device
+-- and print out file and line number for each print
+local original_print = print
+if ( system.getInfo("environment") == "device" ) then
+	print("Print now going silent. With Love, util.lua")
+   print = function() end
+else
+	print = function(message)
+		local info = debug.getinfo(2)
+		local source_file = info.source
+		--original_print(source_file)
+		local debug_path = source_file:match('%a+.lua') ..' ['.. info.currentline ..']'
+		original_print(debug_path..": "..message)
+	end
+end
+
 return Util

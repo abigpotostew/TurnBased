@@ -1,20 +1,10 @@
 
+require("mobdebug").start()
 
 sun = require 'src.sun'
-
 local util = require("src.util")
-require("mobdebug").start()
+
 print( system.getInfo( "maxTextureSize" ) )
-
---local collision = require("src.collision")
---collision.SetGroups{"pollution", "tower", "city", "energy", "terrain", "building", "pipe", "pipeOverlay"}--building is debug!
-
---local physics = require("physics")
---physics.start()
---physics.setGravity(0.0,0.0)
---physics.setDrawMode("hybrid")
---physics.setDrawMode("debug")
-
 
 
 -- Disable undeclared globals
@@ -37,12 +27,13 @@ print( system.getInfo( "maxTextureSize" ) )
 -- Some globals set by various corona modules
 -- Widget adds some globals
 util.DeclareGlobal("sprite")
---util.DeclareGlobal("physics")
+util.DeclareGlobal("physics")
 
 --local pipe = {NONE = -1, LEFT = 0, UP = 1, RIGHT = 2, DOWN = 3}
 
 --util.DeclareGlobal("pipe")
-
+util.DeclareGlobal("debugTexturesSheetInfo")
+util.DeclareGlobal("debugTexturesImageSheet")
 debugTexturesSheetInfo = require("data.debug-textures")
 debugTexturesImageSheet = graphics.newImageSheet( "data/debug-textures.png", debugTexturesSheetInfo:getSheet() )
 

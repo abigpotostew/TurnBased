@@ -22,6 +22,8 @@ local Grid = class:makeSubclass("Grid")
 local tileSheetWidth = 256 --width of sheet image
 local tileSheetHeight = 256 --height of sheet image
 
+local IN = 0
+local OUT = 1
 
 Grid:makeInit(function(class, self)
 	class.super:initWith(self)
@@ -141,7 +143,7 @@ Grid.createTiles = Grid:makeMethod(function(self,  x, y, xMax, yMax, group )
 			local rect = display.newRect(self.group, X*sun.tileSize+startX, Y*sun.tileSize+startY, sun.tileWidth, sun.tileHeight)
 			
 			rect.strokeWidth = 1
-			if((X+Y)%2 == 0) then 
+			if((X+Y)%2 == 1) then 
 				rect:setFillColor(204, 255, 255)
 			else
 				rect:setFillColor(0,153,153)
@@ -208,16 +210,6 @@ Grid.createTileGroup = Grid:makeMethod(function(self)
 	self.group.y = 0
 	
 	self:createTiles( self.group.xMin, self.group.yMin, self.group.xMax, self.group.yMax, self.group )
-	
-	--This comes after creating tiles so it shows up on top of the grid
-	--This guy shows up wherever the players finger is
-	self.selectedTileOverlay = display.newImage(
-        debugTexturesImageSheet, 
-        debugTexturesSheetInfo:getFrameIndex("overlay") )
-	self.selectedTileOverlay.alpha = .5
-	self.selectedTileOverlay.isVisible = false
-	self.group:insert(self.selectedTileOverlay)
-    --self.selectedTileOverlay:setReferencePoint( display.TopLeftReferencePoint)
 	
     
 end)
@@ -384,7 +376,7 @@ Grid.Astar = Grid:makeMethod(function(self,start,goal,heuristic, actor)
 		for j=1, #path do
 			out = out .. "[" .. path[j].x .. ", " .. path[j].y .. "] => "
 		end
-		print(out)
+		--print(out)
 		return path
 	end
 end)

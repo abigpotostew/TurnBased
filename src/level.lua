@@ -63,6 +63,7 @@ end)
 function Level:touch(event)
 	--local currTile = event.target
 	if event.phase == "began" then
+        self.prevTouchPos = Vector2:init(self.xBegan or -1,self.yBegan or -1)
 		self.xBegan = event.x
 		self.yBegan = event.y
 		if self.stepping then return true end
@@ -119,22 +120,16 @@ function Level:touch(event)
 	elseif event.phase == "ended" or event.phase == "cancelled" then
 		--print("touch end")
 		--double tap speed == 500
-		if ( system.getTimer() - self.doubleTapMark < sun.doubleTapTime ) then
-			--print("double tap!!")
+		if ( system.getTimer() - self.doubleTapMark < sun.doubleTapTime and
+                (self.prevTouchPos-
+                    Vector2:init(self.xBegan,self.yBegan)):length()<=sun.doubleTapMaxDist ) then
+			print("double tap!!")
+            
 		else
 			self.doubleTapMark = system.getTimer()
 		end
 	
 	end
-	
-	self.prevTile = currTile
-	
-	-- Update the information text to show the tile at the selected position
-	--self.informationText.text = "Selected Grid Type: " .. currTile.tile.type .. " Current Pipe: " .. self.currentPipe
-	--print(tile)
-
-	-- Transition the player to the selected grid position
-	--transition.to( player, { x = tile.x, y = tile.y, transition = easing.outQuad } )	
 	
 	return true --important
 end
@@ -143,10 +138,11 @@ end
 local function moveActor(actorSprite)
 	local a = actorSprite.actor
 	local finished = false
+    local success = true
 	if a.movementsRemaining > 0 then
 		a.movementsRemaining = a.movementsRemaining-1
 		--do another movement
-		local success = a:move(a.level.grid, moveActor)
+		success = a:move(a.level.grid, moveActor)
 		if success == false then finished = true end
 	else
 		finished = true
@@ -156,6 +152,7 @@ local function moveActor(actorSprite)
 		a.level.movingActorsCt = a.level.movingActorsCt - 1
 		a.level:finishStep()
 	end
+    return success
 end
 
 Level.finishStep = Level:makeMethod(function(self)
@@ -171,24 +168,24 @@ Level.step = Level:makeMethod(function(self)
 	local p = self.player
 	local i = 1
 	p.moveIndex = i
-	self.movingActors = {}
-	self.movingActors[1] = p
-	--add all other actors here
-	for i=1,#self.enemies do
-		table.insert(self.movingActors,self.enemies[i])
-	end
-	
-	self.movingActorsCt = #self.movingActors
-	
-	for i=1,#self.movingActors do
-		local a = self.movingActors[i]
-		a.movementsRemaining = a.movements
-		a.level = self --TODO remove and only set once in beginning
-		moveActor(a.sprite)
-		--calculate destination based on grid
-		--transition to destination
-		--transition.to(a.sprite,{x
-	end
+    p.movementsRemaining = p.movements
+	if moveActor(p.sprite) then 
+    
+        self.movingActors = {}
+        --add all other actors here
+        for i=1,#self.enemies do
+            table.insert(self.movingActors,self.enemies[i])
+        end
+        
+        self.movingActorsCt = #self.movingActors
+        
+        for i=1,#self.movingActors do
+            local a = self.movingActors[i]
+            a.movementsRemaining = a.movements
+            moveActor(a.sprite)
+        end
+    
+    end
 	
 end)
 
@@ -265,7 +262,6 @@ Level.createScene = Level:makeMethod(function(self, event)
 	self:createBuilding(3,2)
 	self:createBuilding(5,2)
 	self:createBuilding(6,3)
-	self:createBuilding(4,3)
 	
 	self:createEnemy(2,6)
 	
@@ -412,6 +408,7 @@ Level.createPlayer = Level:makeMethod(function(self,x,y)
 	x = x or 1
 	y = y or 1
 	self.player = Player:init(x,y)
+    self.player.level = self
 	self.grid:insert(self.player)
 	self.grid.player = self.player
 	self.grid:setActorAt(self.player,Vector2:init(x,y))
@@ -421,6 +418,7 @@ Level.createBuilding = Level:makeMethod(function(self,gridX,gridY)
 	assert(type(gridX)=="number",type(gridY)=="number","building requires a grid location x,y")
 	local b = Building:init(self.grid.group,gridX*sun.tileWidth,gridY*sun.tileWidth)
 	self.grid:insert(b)
+    b.level = self
 	self.grid:setActorAt(b,Vector2:init(gridX,gridY))
 end)
 
@@ -429,6 +427,7 @@ Level.createEnemy = Level:makeMethod(function(self,gridX,gridY)
 	local e = Enemy:init(self.grid.group,gridX,gridY)
 	self.grid:insert(e)
 	self.grid:setActorAt(e,Vector2:init(gridX,gridY))
+    e.level = self
 	table.insert(self.enemies,e)
 end)
 

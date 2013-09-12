@@ -12,10 +12,11 @@ local Sun = {
 	removePipeTouchDistance2 	= 1/16,
 	pipeRotationOffset			= 180, 		--So pipe is oriented correctly
 	doubleTapTime				= 500,
+    doubleTapMaxDist            = 20, --px
 	
-    gridColumns = 6, -- number of grid tiles across
-    gridRows = 6, -- number of grid tiles down
-    moveTime = 150, --milliseconds to move one grid space
+    gridColumns = 7, -- number of grid tiles across
+    gridRows = 7, -- number of grid tiles down
+    moveTime = 250, --milliseconds to move one grid space
 	
 }
 	Sun.tileSize = display.contentHeight/Sun.gridColumns * 0.85
