@@ -22,5 +22,7 @@ local Sun = {
 	Sun.tileSize = display.contentHeight/Sun.gridColumns * 0.85
     Sun.tileWidth = Sun.tileSize --we have square tiles
     Sun.tileHeight = Sun.tileSize --we have square tiles
+    Sun.gridPixelWidth = Sun.tileWidth * Sun.gridColumns
+    Sun.gridPixelHeight = Sun.tileHeight * Sun.gridRows
 
 return Sun

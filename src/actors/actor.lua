@@ -31,7 +31,7 @@ Actor:makeInit(function(class, self, gridX, gridY)
 	self.destY = 0
 	
 	self.movementsRemaining = 0
-	self.movements = 1 -- default 1 movement per step
+	self.movements = 1 --How many tiles this actor can move in one step
 	
 	self.movementFunc = nil --Sets destX, destY. Should do all checks whether an actor can move or not
 	
@@ -72,9 +72,16 @@ Actor.createSprite = Actor:makeMethod(function(self, animName, x, y, scaleX, sca
 	sprite.radiousSprite = nil
 	sprite.gravityScale = 0.0
 
-	
-	
 	return sprite
+end)
+
+Actor.createRectangleSprite = Actor:makeMethod(function(self,w,h)
+    assert(self.group,"Please initialize this actor's group before creating a sprite")
+    local x, y = self.X*sun.tileWidth, self.Y*sun.tileHeight
+    self.sprite = display.newRect(self.group, x-w/2, y-h/2, w, h)
+    self.sprite.actor = self
+	self.sprite:setFillColor(255,0,255)
+	self.sprite:setStrokeColor(255,0,255)    
 end)
 
 Actor.createDebugSprite = Actor:makeMethod(function(self, image, x, y, scaleX, scaleY, events)
@@ -248,5 +255,9 @@ Actor.canOverlapWith = Actor:makeMethod(function(self,actorOther)
 	return true
 end)
 
+Actor.update = Actor:makeMethod(function(self,...)
+    --Intentionallty left blank   
+    --This is a abstract functions intended to be overriden by inheriting classes
+end)
 
 return Actor

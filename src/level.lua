@@ -21,6 +21,7 @@ local Grid = require("src.grid")
 
 local Player = require("src.actors.player")
 local Building = require("src.actors.building")
+local Buildings = require("actors.buildings")
 local Enemy = require("src.actors.enemy")
 
 
@@ -35,13 +36,15 @@ Level:makeInit(function(class, self)
 
 	self.timeline = {}
 	self.enemies = {}
-	self.terrain = {}
+	self.terrain = {} --unused so far...
 	self.buildings = {}
+    self.petroleumBuildings = {} 
+    self.allActors = {self.enemies, self.terrain, self.buildings,self.petroleumBuildings} --table of tables
 	self.timers = {}
 	self.transitions = {}
 	self.listeners = {}
-	self.movingActors = {}
-	self.movingActorsCt = 0
+	self.movingActors = {} --temp used each time Level:step() is called
+	self.movingActorsCt = 0 --used for finishing up steps
 	self.lastFrameTime = 0
 
 	self.scene = storyboard.newScene()
@@ -118,13 +121,14 @@ function Level:touch(event)
 			self:step()
 		end
 	elseif event.phase == "ended" or event.phase == "cancelled" then
-		--print("touch end")
 		--double tap speed == 500
 		if ( system.getTimer() - self.doubleTapMark < sun.doubleTapTime and
                 (self.prevTouchPos-
                     Vector2:init(self.xBegan,self.yBegan)):length()<=sun.doubleTapMaxDist ) then
-			print("double tap!!")
-            
+            local target = event.target
+            local gridPos = Vector2:init(math.ceil(event.x/sun.gridPixelWidth*sun.gridColumns-0.5),
+                                         math.ceil(event.y/sun.gridPixelHeight*sun.gridRows+-0.5) )
+            print(gridPos.x..", "..gridPos.y)
 		else
 			self.doubleTapMark = system.getTimer()
 		end
@@ -170,11 +174,17 @@ Level.step = Level:makeMethod(function(self)
 	p.moveIndex = i
     p.movementsRemaining = p.movements
 	if moveActor(p.sprite) then 
-    
         self.movingActors = {}
-        --add all other actors here
-        for i=1,#self.enemies do
-            table.insert(self.movingActors,self.enemies[i])
+        --Update all actors and possible add them to the moving list
+        for t=1,#self.allActors do
+            local actorList = self.allActors[t] 
+            for a=1,#actorList do
+                local actor = actorList[a]
+                actor:update()
+                if actor.movements > 0 then --if it's a moving actor
+                    table.insert(self.movingActors,actor)
+                end
+            end
         end
         
         self.movingActorsCt = #self.movingActors
@@ -258,12 +268,16 @@ Level.createScene = Level:makeMethod(function(self, event)
     --------------------------------
 	self.grid = Grid:init()
 	self:createPlayer(2,3)
-	self:createBuilding(1,2)
-	self:createBuilding(3,2)
-	self:createBuilding(5,2)
-	self:createBuilding(6,3)
-	
-	self:createEnemy(2,6)
+	self:createBuildingByName('wall',1,2)
+	self:createBuildingByName('wall',3,2)
+	self:createBuildingByName('wall',5,2)
+	self:createBuildingByName('wall',6,4)
+    self:createBuildingByName('wall',6,5)
+    self:createBuildingByName('wall',6,6)
+    self:createBuildingByName('wall',7,7)
+	self:createBuildingByName('petroleum',1,5)
+    
+	--self:createEnemy(2,6) --An Enemey that follows the player around
 	
 	self.grid.group:addEventListener("touch", self)
 
@@ -414,12 +428,16 @@ Level.createPlayer = Level:makeMethod(function(self,x,y)
 	self.grid:setActorAt(self.player,Vector2:init(x,y))
 end)
 
-Level.createBuilding = Level:makeMethod(function(self,gridX,gridY)
+
+
+Level.createBuildingByName = Level:makeMethod(function(self,buildingName, gridX,gridY)
+    assert(type(buildingName)=="string","building name must be a string") --lazy assert, sry
 	assert(type(gridX)=="number",type(gridY)=="number","building requires a grid location x,y")
-	local b = Building:init(self.grid.group,gridX*sun.tileWidth,gridY*sun.tileWidth)
+	local b = Buildings[buildingName](self.grid.group,gridX,gridY)
 	self.grid:insert(b)
-    b.level = self
+     b.level = self
 	self.grid:setActorAt(b,Vector2:init(gridX,gridY))
+    table.insert(self.buildings,b)
 end)
 
 Level.createEnemy = Level:makeMethod(function(self,gridX,gridY)
@@ -429,6 +447,17 @@ Level.createEnemy = Level:makeMethod(function(self,gridX,gridY)
 	self.grid:setActorAt(e,Vector2:init(gridX,gridY))
     e.level = self
 	table.insert(self.enemies,e)
+end)
+
+
+Level.createPetroleum = Level:makeMethod(function(self,gridX,gridY)
+	assert(type(gridX)=="number",type(gridY)=="number","petroleum requires a grid location x,y")
+	local p = Building:init(self.grid.group,gridX*sun.tileWidth,gridY*sun.tileWidth)
+	self.grid:insert(p)
+    p.level = self
+	self.grid:setActorAt(p,Vector2:init(gridX,gridY))
+    table.insert(self.petroleumBuildings,p)
+    
 end)
 
 return Level

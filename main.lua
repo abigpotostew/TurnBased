@@ -6,6 +6,8 @@ local util = require("src.util")
 
 print( system.getInfo( "maxTextureSize" ) )
 
+--util.DeclareGlobal("Vector2")
+--Vector2 = require "src.vector2"
 
 -- Disable undeclared globals
 --[[ setmetatable(_G, {

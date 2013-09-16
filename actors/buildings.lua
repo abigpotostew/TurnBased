@@ -1,9 +1,17 @@
 -- Buildings
 
-local buildingType = require "src.actors.buildingType"
-local building = require "src.actors.building"
+local BuildingType = require "src.actors.buildingType"
+local Building = require "src.actors.building"
 local Buildings = {}
 
+function createNewBuilding(group,gridX,gridY,w,h)
+    w = w or sun.tileWidth
+    h = h or sun.tileHeight
+    local b = Building:init(group,gridX,gridY)
+    b:createRectangleSprite(w, h)
+    return b
+end
+    
 
 Buildings["city"] = function()
 	local bType = buildingType:init()
@@ -93,6 +101,23 @@ Buildings["hybrid"] = function()
 	
 	return bType
 end
+
+Buildings["wall"] = function(group,gridX,gridY)
+	local b = createNewBuilding(group,gridX,gridY)
+	b.sprite:setFillColor(59,151,61)
+	b.sprite:setStrokeColor(200, 200, 200)
+	
+	return b
+end
+
+Buildings["petroleum"] = function(group,gridX,gridY)
+    local p = createNewBuilding(group,gridX,gridY, sun.tileWidth/1.5,sun.tileHeight/1.5)
+    p.sprite:setFillColor(0,0,0)
+	p.sprite:setStrokeColor(0, 0, 0)
+    
+    return p
+end
+
 
 
 return Buildings
