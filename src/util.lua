@@ -61,7 +61,6 @@ function Util.MergeTables(table1, table2)
 			newTable[key] = value
 		end
 	end
-
 	return newTable
 end
 
@@ -183,4 +182,75 @@ else
 	end
 end
 
+--Concatenate array table B onto the end of array table A
+Util.arrayConcat = function(A,B)
+    local iA = #A
+    for i = 1, #B do
+        A[i+iA] = B[i]
+    end
+    return A
+end
+
+--Concats B onto the end of A but doesn't allow duplicates from B in A
+-- if endA is set to #A, then we won't be checking for duplicates in B while adding to A
+Util.arrayConcatUnique = function(A,B,endA)
+    endA = endA or #A
+    local offset = 0
+    for i = 1, #B do
+        if Util.arrayContains(A,B[i],endA) then offset = offset + 1
+        else
+            A[i+endA-offset] = B[i]
+        end
+    end
+    return A
+end
+
+--endA limits index depth we check for dusplicates in array A
+--returns index in which the obj was found in the array A
+Util.arrayContains = function(A, obj, endA)
+    if (endA and endA > #A) or not endA then 
+        endA = #A
+    end
+    --endA = (endA and endA < #A and endA) or #A --pretty sure this does the above, but the above is more clear
+    for i=1, endA do
+        if A[i]==obj then return true, i end
+    end
+    return false, nil
+end
+
+--Return a new table with all mutually exclusive elements in A & B
+Util.getUniqueArray = function(A,B)
+    local unique = {}
+    local duplicatesInB = {} --indices of diplicates found in B
+    for i=1, #A do
+        local doesContain, indexB = Util.arrayContains(B, A[i])
+        if not doesContain then
+            table.insert(unique,A[i]) -- object A[i] is unique to A
+        else
+            table.insert(duplicatesInB, indexB) --B[indexB] is equal to A[i]
+        end
+    end
+    --All elements {in A and not in B} are in the unique table.
+    table.sort(duplicatesInB)
+    local prevStartI = 1
+    for i = 1, #duplicatesInB do
+        local startI, endI = prevStartI, duplicatesInB[i]-1
+        for j = startI, endI do
+            if not Util.arrayContains(A, B[j]) then
+                table.insert(unique,B[j])
+            end
+        end
+        prevStartI = endI+2 --skip over the duplicate object index
+    end
+    if prevStartI <= #B then
+        for i=prevStartI, #B do
+            if not Util.arrayContains(A, B[i]) then
+                table.insert(unique,B[i])
+            end
+        end
+    end
+    return unique
+end
+
+    
 return Util

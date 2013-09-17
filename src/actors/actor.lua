@@ -19,6 +19,8 @@ Actor:makeInit(function(class, self, gridX, gridY)
 	self.typeName = "actor"
 
 	self.hitCount = 0
+    self.health = 1
+    self.originalHealth = self.health
 	
 	--GRID POSITION
 	self.X = gridX or 1
@@ -34,7 +36,8 @@ Actor:makeInit(function(class, self, gridX, gridY)
 	self.movements = 1 --How many tiles this actor can move in one step
 	
 	self.movementFunc = nil --Sets destX, destY. Should do all checks whether an actor can move or not
-	
+	self.updateFunc = nil
+    
     local actorType={}
 	if actorType then
 		self.typeInfo = actorType
@@ -75,28 +78,14 @@ Actor.createSprite = Actor:makeMethod(function(self, animName, x, y, scaleX, sca
 	return sprite
 end)
 
-Actor.createRectangleSprite = Actor:makeMethod(function(self,w,h)
+Actor.createRectangleSprite = Actor:makeMethod(function(self,w,h,strokeWidth)
     assert(self.group,"Please initialize this actor's group before creating a sprite")
     local x, y = self.X*sun.tileWidth, self.Y*sun.tileHeight
     self.sprite = display.newRect(self.group, x-w/2, y-h/2, w, h)
     self.sprite.actor = self
 	self.sprite:setFillColor(255,0,255)
 	self.sprite:setStrokeColor(255,0,255)    
-end)
-
-Actor.createDebugSprite = Actor:makeMethod(function(self, image, x, y, scaleX, scaleY, events)
-	assert(animName, "You must provide an anim name when creating an actor sprite")
-	assert(x and y, "You must specify a position when creating an actor sprite")
-
-	scaleX = scaleX or 1
-	scaleY = scaleY or 1
-
-	local sprite = spSprite.init(self.typeInfo.animSet, animName, events)
-	sprite.owner = self
-	sprite.x, sprite.y = x, y
-	sprite:scale(scaleX, scaleY)
-
-	self.sprite = sprite
+    if strokeWidth then self.sprite.strokeWidth = strokeWidth end
 end)
 
 Actor.removeSprite = Actor:makeMethod(function(self)
@@ -256,8 +245,13 @@ Actor.canOverlapWith = Actor:makeMethod(function(self,actorOther)
 end)
 
 Actor.update = Actor:makeMethod(function(self,...)
-    --Intentionallty left blank   
-    --This is a abstract functions intended to be overriden by inheriting classes
+    if self.updateFunc then
+        self.updateFunc(self,unpack(arg))
+    end
+end)
+
+Actor.isAtFullHealth = Actor:makeMethod(function(self)
+    return self.health == self.originalHealth
 end)
 
 return Actor

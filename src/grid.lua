@@ -13,6 +13,8 @@ local Actor = require("src.actors.actor")
 --local Pollutions = require "actors.pollutions"
 
 local Vector2 = require "src.vector2"
+local Vector4 = require "src.vector4"
+
 local Util = require "src.util"
 local Heap = require "src.libs.heap"
 
@@ -142,16 +144,20 @@ Grid.createTiles = Grid:makeMethod(function(self,  x, y, xMax, yMax, group )
 		for Y = 1, sun.gridRows do
 			local rect = display.newRect(self.group, X*sun.tileSize+startX, Y*sun.tileSize+startY, sun.tileWidth, sun.tileHeight)
 			
-			rect.strokeWidth = 1
-			if((X+Y)%2 == 1) then 
-				rect:setFillColor(204, 255, 255)
-			else
-				rect:setFillColor(0,153,153)
-			end
-			rect:setStrokeColor(180, 180, 180)
+            local fillColor = Vector4:init(22,168,34)
+			rect.strokeWidth = 3
+			--if((X+Y)%2 == 1) then 
+				rect:setFillColor(fillColor:xyz())--204, 255, 255
+			--else
+			--	rect:setFillColor(0,153,153)
+			--end
+			rect:setStrokeColor(22, 103, 34)
 			self.grid[X][Y] = {tile=Actor:init(),actor=nil}
             self.grid[X][Y].tile.group = self.group
             self.grid[X][Y].tile.sprite = rect
+            self.grid[X][Y].tile.originalHealth = 3
+            self.grid[X][Y].tile.health = 3
+            self.grid[X][Y].tile.originalColor = fillColor
 			rect.actor = self.grid[X][Y].tile
             self.group:insert(self.grid[X][Y].tile.sprite)
 		end
@@ -182,6 +188,14 @@ Grid.getActorAt = Grid:makeMethod(function(self,node)
 	--self:boundCheck(node)
 	if self:isWithinGrid(node) then
 		return self.grid[node.x][node.y].actor
+	end
+	return nil
+end)
+
+Grid.getTileAt = Grid:makeMethod(function(self,node)
+	--self:boundCheck(node)
+	if self:isWithinGrid(node) then
+		return self.grid[node.x][node.y].tile
 	end
 	return nil
 end)
@@ -389,6 +403,7 @@ Grid.createGridArray = Grid:makeMethod(function(self)
 	return gridArray
 end)
 
+--Mainly used by Astar
 Grid.getConnections = Grid:makeMethod(function(self,node,actor)
 	local connections = {}
 	local potentialConnections = {}
@@ -398,13 +413,17 @@ Grid.getConnections = Grid:makeMethod(function(self,node,actor)
 	table.insert(potentialConnections,Vector2:init(node.x+1,node.  y))--right
 	for i=1, #potentialConnections do
 		if self:isWithinGrid(potentialConnections[i]) and 
-		   self:isTileEmpty(potentialConnections[i]) or
-		   self:canActorMoveHere(actor,potentialConnections[i]) then 
-			table.insert( connections,potentialConnections[i] )
+		    ( (actor and ( 
+                ( self:isTileEmpty(potentialConnections[i]) or
+                self:canActorMoveHere(actor,potentialConnections[i]) ) 
+                )  )
+            or not actor) then 
+			table.insert( connections,potentialConnections[i] ) 
 		end
 	end
 	return connections
 end)
+
 
 Grid.canActorMoveHere = Grid:makeMethod(function(self, actor, nodeTo)
 	assert(actor,"Grid:canActorMoveHere(): Must provide actor parameter.")

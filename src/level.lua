@@ -57,6 +57,8 @@ Level:makeInit(function(class, self)
 	self.width = display.contentWidth
 	
 	self.doubleTapMark = 0
+    
+    self.stepCount = 0
 
 	return self
 end)
@@ -167,6 +169,7 @@ end)
 
 Level.step = Level:makeMethod(function(self)
 	if self.stepping == true then return end
+    self.stepCount = self.stepCount + 1
 	--print("stepping")
 	self.stepping = true
 	local p = self.player
@@ -277,7 +280,7 @@ Level.createScene = Level:makeMethod(function(self, event)
     self:createBuildingByName('wall',7,7)
 	self:createBuildingByName('petroleum',1,5)
     
-	--self:createEnemy(2,6) --An Enemey that follows the player around
+	self:createEnemy(2,6) --An Enemey that follows the player around
 	
 	self.grid.group:addEventListener("touch", self)
 
