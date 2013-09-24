@@ -21,7 +21,7 @@ function Heap.new(isMax,data)
 	data = data or {}
 	local heap = {}
 	setmetatable(heap, Heap.mt)
-	heap.isMax = isMax
+	heap.isMax = isMax and true
 	heap.heapsize = #data
 	for i = 1, #data do
 		heap[i] = data[i]

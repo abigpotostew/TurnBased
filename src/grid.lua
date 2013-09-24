@@ -327,7 +327,7 @@ Grid.Astar = Grid:makeMethod(function(self,start,goal,heuristic, actor)
 			local endNodeCost = currentRecord.costSoFar + connectionCost
 			local endNodeHeuristic = 0
 			local endNodeRecord = records[endNode.x][endNode.y]
-			local skip = false
+			local skip = false --Because Lua doesn't have continue
 			
 			if closed:findValue(endNode) then
 				if (endNodeRecord.costSoFar <= endNodeCost) then
@@ -361,14 +361,11 @@ Grid.Astar = Grid:makeMethod(function(self,start,goal,heuristic, actor)
 				local index,kv = open:findValue(endNode)
 				if not index then
 					open:insert(endNodeRecord.estimatedTotalCost, endNode)
-				--elseif kv.k < endNodeRecord.estimatedTotalCost then
-					--open:decreaseKey(index, endNodeRecord.estimatedTotalCost)
-				--	open:updateKeyByValue( endNode, endNodeRecord.estimatedTotalCost )
 				end
 			end
 		end
 		--Remove current from open and add to closed, using k as estimated total cost
-		closed:insert(open:removeValue(currentNode).k,currentNode)
+		closed:insert( open:removeValue(currentNode).k, currentNode )
 	end
 	
 	--We've found goal, or no more nodes to search
