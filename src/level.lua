@@ -279,6 +279,8 @@ Level.createScene = Level:makeMethod(function(self, event)
     self:createBuildingByName('wall',6,6)
     self:createBuildingByName('wall',7,7)
 	self:createBuildingByName('petroleum',1,5)
+    self:createBuildingByName('microgrid',4,4)
+    
     
 	self:createEnemy(2,6) --An Enemey that follows the player around
 	

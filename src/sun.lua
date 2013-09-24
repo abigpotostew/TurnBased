@@ -13,12 +13,12 @@ local Sun = {
 	pipeRotationOffset			= 180, 		--So pipe is oriented correctly
 	doubleTapTime				= 500,
     doubleTapMaxDist            = 20, --px
-	
-    gridColumns = 7, -- number of grid tiles across
-    gridRows = 7, -- number of grid tiles down
-    moveTime = 250, --milliseconds to move one grid space
-	
+	moveTime = 250, --milliseconds to move one grid space
+    
 }
+    Sun.gridSize = 10
+    Sun.gridColumns = Sun.gridSize -- number of grid tiles across
+    Sun.gridRows = Sun.gridSize -- number of grid tiles down
 	Sun.tileSize = display.contentHeight/Sun.gridColumns * 0.85
     Sun.tileWidth = Sun.tileSize --we have square tiles
     Sun.tileHeight = Sun.tileSize --we have square tiles

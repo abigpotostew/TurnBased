@@ -156,5 +156,19 @@ Vector4.xyzw = Vector4:makeMethod(function(self)
 	return self.x,self.y,self.z,self.w
 end)
 
+Vector4.set = Vector4:makeMethod(function(self,x,y,z,w)
+    if x and type(x)=="number" then 
+        self.x = x
+        if y and type(y)=="number" then 
+            self.y = y
+            if z and type(z)=="number" then 
+                self.z = z
+                if w and type(w)=="number" then 
+                    self.w = w
+                end
+            end
+        end
+    end
+end)
 
 return Vector4

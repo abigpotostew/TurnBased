@@ -182,6 +182,10 @@ else
 	end
 end
 
+--------------------------------------------------------------
+-- Array Utilities
+--------------------------------------------------------------
+
 --Concatenate array table B onto the end of array table A
 Util.arrayConcat = function(A,B)
     local iA = #A
@@ -250,6 +254,68 @@ Util.getUniqueArray = function(A,B)
         end
     end
     return unique
+end
+
+--returns new table of elements in A that aren't in B
+Util.arrayNot = function(A,B)
+    local notSet = {}
+    for i=1, #A do
+        if not Util.arrayContains(B,A[i]) then
+            table.insert(notSet, A[i])
+        end
+    end
+    return notSet
+end
+
+
+--------------------------------------------------------------
+-- Color Utilities
+--------------------------------------------------------------
+
+--local Vector4 = require 'src.vector4'
+
+--Estimates mixing 2 colors assuming they are in 0-255 range
+-- From http://stackoverflow.com/a/8130763/595265
+Util.mixColors = function(c1,c2)
+    --assert(Vector4:isVector4(c1), 
+    --       Vector4:isVector4(c2), "Util:mixColors(): requires 2 vec4")
+    local r1 = c1.x
+    local g1 = c1.y
+    local b1 = c1.z
+    local r2 = c2.x
+    local g2 = c2.y
+    local b2 = c2.z
+
+    local w1 = math.min(r1, math.min(g1, b1));
+    local w2 = math.min(r2, math.min(g2, b2));
+
+    -- remove white before mixing
+    r1 = r1-w1;
+    g1 = g1-w1;
+    b1 = b1-w1;
+    r2 = r2-w2;
+    g2 = g2-w2;
+    b2 = b2-w2;
+
+    local m1 = math.max(r1, math.max(g1, b1));
+    local m2 = math.max(r2, math.max(g2, b2));
+
+    local br = (m1+m2)/(2*255);
+
+    local r3 = (r1+r2)*br;
+    local g3 = (g1+g2)*br;
+    local b3 = (b1+b2)*br;
+
+    -- average whiteness and add into final color
+    local w3 = (w1+w2)/2;
+
+    r3 = r3 + w3;
+    g3 = g3 + w3;
+    b3 = b3 + w3;
+    
+    local alpha = (c1.w + c2.w)/2
+    
+    return r3,g3,b3,alpha
 end
 
     
