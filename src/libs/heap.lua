@@ -16,7 +16,7 @@ table.exchange = function(t, a, b)
 	t[b] = tmp
 end
 
---data := { {k,v}, {k,v} }
+--data := { { k = type(number), v = (Anything) }, ... }
 function Heap.new(isMax,data)
 	data = data or {}
 	local heap = {}
@@ -118,8 +118,12 @@ end
 ---------------------------------------------------
 -- Priority Queue methods
 ---------------------------------------------------
+--
+-- Max priority queue methods
+--
 function Heap.prototype.maximum(self,i)
-	if self.isMax ~= true then --no maximum garanteed when using a min priority queue
+	if self.isMax ~= true then
+		--no maximum garanteed when using a min priority queue
 		error("maximum(): invalid operation on min heap.")
 	end
 	return self[1]
@@ -151,8 +155,12 @@ function Heap.prototype.increaseKey(self,i,key)
 	end
 end
 
+--
+-- Min priority queue methods
+--
 function Heap.prototype.minimum(self)
-	if self.isMax == true then --no maximum garanteed when using a min priority queue
+	if self.isMax == true then 
+		--no maximum garanteed when using a min priority queue
 		error("minimum(): invalid operation on max heap.")
 	end
 	return self[1]
@@ -184,6 +192,9 @@ function Heap.prototype.decreaseKey(self,i,key)
 	end
 end
 
+--
+-- Standard priority queue methods
+--
 function Heap.prototype.insert(self,key,value)
 	self.heapsize = self.heapsize+1
 	if self.isMax then
@@ -195,7 +206,6 @@ function Heap.prototype.insert(self,key,value)
 	end
 end
 
---Removes first node found with given key
 function Heap.prototype.removeKey(self,key)
 	return self:remove("k",key)
 end
@@ -204,6 +214,7 @@ function Heap.prototype.removeValue(self,value)
 	return self:remove("v",value)
 end
 
+--Removes first node found with given key/value
 function Heap.prototype.remove(self, kOrV, obj)
 	assert(kOrV=="k" or kOrV=="v", [[Heap:remove() generalizes pairs by 'k' or 'v', 
  therefore you must use one of these as the first parameter of find().]])
@@ -218,6 +229,7 @@ function Heap.prototype.remove(self, kOrV, obj)
 	return nil
 end
 
+--Updates the first found [k,v] with the new key
 function Heap.prototype.updateKeyByValue(self,value,newKey)
 	self:removeValue(value)
 	self:insert(newKey,value)
@@ -231,7 +243,7 @@ function Heap.prototype.findValue(self,value)
 	return self:find("v",value)
 end
 
---returns the index and pair of the object you're looking for
+--Returns the index and pair of the first k or v object you're looking for
 function Heap.prototype.find(self,kOrV,obj)
 	assert(kOrV=="k" or kOrV=="v", [[Heap:find() generalizes pairs by 'k' or 'v', 
  therefore you must use one of these as the first parameter of find().]])
