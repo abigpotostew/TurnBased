@@ -187,7 +187,7 @@ end
 --------------------------------------------------------------
 
 --Concatenate array table B onto the end of array table A
-Util.arrayConcat = function(A,B)
+function Util.arrayConcat(A,B)
     local iA = #A
     for i = 1, #B do
         A[i+iA] = B[i]
@@ -197,7 +197,7 @@ end
 
 --Concats B onto the end of A but doesn't allow duplicates from B in A
 -- if endA is set to #A, then we won't be checking for duplicates in B while adding to A
-Util.arrayConcatUnique = function(A,B,endA)
+function Util.arrayConcatUnique(A,B,endA)
     endA = endA or #A
     local offset = 0
     for i = 1, #B do
@@ -209,13 +209,14 @@ Util.arrayConcatUnique = function(A,B,endA)
     return A
 end
 
---endA limits index depth we check for dusplicates in array A
+--endA limits index depth we check for duplicates in array A
 --returns index in which the obj was found in the array A
-Util.arrayContains = function(A, obj, endA)
+function Util.arrayContains(A, obj, endA)
     if (endA and endA > #A) or not endA then 
         endA = #A
     end
-    --endA = (endA and endA < #A and endA) or #A --pretty sure this does the above, but the above is more clear
+	--pretty sure this does the above, but the above is more clear
+    --endA = (endA and endA < #A and endA) or #A 
     for i=1, endA do
         if A[i]==obj then return true, i end
     end
@@ -223,7 +224,7 @@ Util.arrayContains = function(A, obj, endA)
 end
 
 --Return a new table with all mutually exclusive elements in A & B
-Util.getUniqueArray = function(A,B)
+function Util.getUniqueArray(A,B)
     local unique = {}
     local duplicatesInB = {} --indices of diplicates found in B
     for i=1, #A do
@@ -231,14 +232,16 @@ Util.getUniqueArray = function(A,B)
         if not doesContain then
             table.insert(unique,A[i]) -- object A[i] is unique to A
         else
-            table.insert(duplicatesInB, indexB) --B[indexB] is equal to A[i]
+            table.insert(duplicatesInB, indexB) --B[indexB] is equal to A[i]   
         end
     end
+	--Dup check for all non-known duplicates in B
     --All elements {in A and not in B} are in the unique table.
+	--Sort it so we can traverse indices linearly
     table.sort(duplicatesInB)
     local prevStartI = 1
     for i = 1, #duplicatesInB do
-        local startI, endI = prevStartI, duplicatesInB[i]-1
+        local startI, endI = prevStartI, duplicatesInB[i]-1 --end before dup
         for j = startI, endI do
             if not Util.arrayContains(A, B[j]) then
                 table.insert(unique,B[j])
@@ -246,6 +249,7 @@ Util.getUniqueArray = function(A,B)
         end
         prevStartI = endI+2 --skip over the duplicate object index
     end
+	--Any leftovers after the last known duplicate in B
     if prevStartI <= #B then
         for i=prevStartI, #B do
             if not Util.arrayContains(A, B[i]) then
@@ -257,7 +261,7 @@ Util.getUniqueArray = function(A,B)
 end
 
 --returns new table of elements in A that aren't in B
-Util.arrayNot = function(A,B)
+function Util.arrayNot(A,B)
     local notSet = {}
     for i=1, #A do
         if not Util.arrayContains(B,A[i]) then
@@ -276,7 +280,7 @@ end
 
 --Estimates mixing 2 colors assuming they are in 0-255 range
 -- From http://stackoverflow.com/a/8130763/595265
-Util.mixColors = function(c1,c2)
+function Util.mixColors(c1,c2)
     --assert(Vector4:isVector4(c1), 
     --       Vector4:isVector4(c2), "Util:mixColors(): requires 2 vec4")
     local r1 = c1.x
